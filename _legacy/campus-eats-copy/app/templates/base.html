@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Campus Eats{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/" class="logo">🍽️ Campus Eats</a>
+        </div>
+        <div class="navbar-center">
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search for food, restaurants..." />
+            </div>
+        </div>
+        <div class="navbar-right">
+            {% if user %}
+                <span class="user-greeting">Hi, {{ (user.username[:1] | upper) ~ user.username[1:] }}</span>
+                {% if user.role in ["management", "admin"] %}
+                <a href="/admin/places" class="btn btn-outline">Manage</a>
+                {% endif %}
+                <a href="/logout" class="btn btn-outline">Log Out</a>
+            {% else %}
+                <a href="/login" class="btn btn-outline">Log In</a>
+                <a href="/signup" class="btn btn-primary">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="main-content">
+        {% if flash %}
+        <div
+            style="
+                margin-bottom: 16px;
+                padding: 12px 14px;
+                border-radius: 8px;
+                {% if flash.category == 'success' %}
+                background-color: #e8f5e9;
+                border: 1px solid #c8e6c9;
+                color: #1b5e20;
+                {% else %}
+                background-color: #ffebee;
+                border: 1px solid #ffcdd2;
+                color: #b71c1c;
+                {% endif %}
+            "
+        >
+            {{ flash.message }}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

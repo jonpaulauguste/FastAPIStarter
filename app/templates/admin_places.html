@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Campus Eats - Management{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h2>Manage Listings</h2>
+    <a href="/places">View public listings</a>
+</div>
+
+<div style="margin-bottom: 16px;">
+    <a class="btn btn-primary" href="/admin/places/new">Add New Place</a>
+</div>
+
+{% for place in places %}
+<div class="restaurant-card" style="padding: 16px; margin-bottom: 24px;">
+    <div class="section-header" style="margin-bottom: 10px;">
+        <h3>{{ place.name }}</h3>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a class="btn btn-outline" href="/admin/places/{{ place.id }}/edit">Edit Place</a>
+            <form method="post" action="/admin/places/{{ place.id }}/delete" onsubmit="return confirm('Delete this place?');">
+                <button class="btn btn-outline" type="submit">Delete Place</button>
+            </form>
+        </div>
+    </div>
+
+    <p style="margin-bottom: 8px;"><strong>Cuisine:</strong> {{ place.cuisine }}</p>
+    <p style="margin-bottom: 4px;"><strong>Location:</strong> {{ place.location }}</p>
+    <p style="margin-bottom: 12px;"><strong>Description:</strong> {{ place.description }}</p>
+
+    <div class="section-header" style="margin-bottom: 8px;">
+        <h4>Menu Items</h4>
+        <a class="btn btn-primary" href="/admin/places/{{ place.id }}/menu/new">Add Menu Item</a>
+    </div>
+
+    {% for item in menu_items_by_place[place.id] %}
+    <div style="display: flex; justify-content: space-between; gap: 8px; align-items: center; border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+        <div>
+            <strong>{{ item.name }}</strong>
+            <div>${{ "%.2f"|format(item.price) }}</div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a class="btn btn-outline" href="/admin/menu/{{ item.id }}/edit">Edit</a>
+            <form method="post" action="/admin/menu/{{ item.id }}/delete" onsubmit="return confirm('Delete this menu item?');">
+                <button class="btn btn-outline" type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p>No menu items yet.</p>
+    {% endfor %}
+</div>
+{% else %}
+<p>No places available yet.</p>
+{% endfor %}
+{% endblock %}
