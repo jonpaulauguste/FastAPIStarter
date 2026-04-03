@@ -441,6 +441,48 @@ def _seed_reviews(session: Session, bob: User, student: User):
         session.add_all(reviews_to_add)
 
 
+def _calculate_average_rating_for_place(session: Session, place_id: int) -> float:
+    reviews = session.exec(select(Review).where(Review.place_id == place_id)).all()
+    if not reviews:
+        return 0.0
+
+    total = sum(review.rating for review in reviews)
+    return round(total / len(reviews), 1)
+
+
+def _update_place_ratings_from_reviews(session: Session):
+    places = session.exec(select(Place)).all()
+    for place in places:
+        place.rating = _calculate_average_rating_for_place(session, place.id)
+        session.add(place)
+
+
+def ensure_reviews_for_all_places(session: Session):
+    places = session.exec(select(Place)).all()
+    reviews_to_add = []
+
+    for place in places:
+        existing_review = session.exec(
+            select(Review).where(Review.place_id == place.id)
+        ).first()
+        if existing_review is None:
+            reviews_to_add.append(
+                Review(
+                    rating=4,
+                    comment="Good place overall.",
+                    user_id=1,
+                    place_id=place.id,
+                )
+            )
+
+    if reviews_to_add:
+        session.add_all(reviews_to_add)
+        session.flush()
+
+    _update_place_ratings_from_reviews(session)
+    session.commit()
+
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
     _migrate_user_table_if_needed()
@@ -474,7 +516,7 @@ def create_db_and_tables():
         _sync_place_details(session)
         _sync_place_images(session)
         _seed_reviews(session, bob=bob, student=student)
-        session.commit()
+        ensure_reviews_for_all_places(session)
 
 
 def get_session():
