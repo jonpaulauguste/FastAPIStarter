@@ -6,7 +6,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.auth import SECRET_KEY
 from app.database import create_db_and_tables
-from app.routers import admin, auth, places, reviews
+from app.routers import admin, auth, places, reviews, ai
 
 
 @asynccontextmanager
@@ -23,3 +23,4 @@ app.include_router(auth.router)
 app.include_router(places.router)
 app.include_router(reviews.router)
 app.include_router(admin.router)
+app.include_router(ai.router, prefix="/ai", tags=["AI"])
