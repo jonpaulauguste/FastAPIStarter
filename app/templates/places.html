@@ -8,42 +8,101 @@
     <a href="/">Back home</a>
 </div>
 
-<div class="restaurant-grid">
-    {% for place in places %}
-    <a href="/places/{{ place.id }}" class="restaurant-card">
-        <img
-            class="card-image"
-            src="{{ place.image_url }}"
-            alt="{{ place.name }}"
-            onerror="this.src='/static/img/placeholder.svg'"
-        />
-        <div class="card-body">
-            <h3>{{ place.name }}</h3>
-            {% set avg_rating = average_ratings.get(place.id) %}
-            <div class="card-meta">
-                {% if avg_rating is not none %}
-                <div class="rating">
-                    <span class="star">★</span>
-                    <span>{{ avg_rating }}</span>
-                </div>
-                {% else %}
-                <span>No ratings yet</span>
-                {% endif %}
-                <span>•</span>
-                <span>{{ place.cuisine }}</span>
-            </div>
-            <div class="card-meta">
-                <span>{{ place.location }}</span>
-            </div>
-            <p class="card-description-clamp" style="margin-top: 8px; color: #555;">{{ place.description }}</p>
-            <div class="card-meta" style="margin-top: 8px;">
-                <span style="color: #d32f2f; font-weight: 600;">Get Directions ↗</span>
-            </div>
+<!-- Filter Section -->
+<div class="filter-section" style="background: white; padding: 16px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #666;">Filter by Cuisine</label>
+            <select id="cuisineFilter" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.9rem;">
+                <option value="all">All Cuisines</option>
+                <option value="American">American</option>
+                <option value="Caribbean">Caribbean</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Italian">Italian</option>
+                <option value="Mediterranean / Greek">Mediterranean / Greek</option>
+                <option value="Coffee and Pastries">Coffee and Pastries</option>
+                <option value="Street Food">Street Food</option>
+            </select>
         </div>
-    </a>
+        
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #666;">Minimum Rating</label>
+            <select id="ratingFilter" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.9rem;">
+                <option value="all">Any Rating</option>
+                <option value="4">4+ Stars</option>
+                <option value="4.5">4.5+ Stars</option>
+            </select>
+        </div>
+        
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #666;">Sort By</label>
+            <select id="sortFilter" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.9rem;">
+                <option value="name">Name (A-Z)</option>
+                <option value="rating-high">Rating (High to Low)</option>
+                <option value="rating-low">Rating (Low to High)</option>
+            </select>
+        </div>
+        
+        <button id="resetFiltersBtn" class="btn btn-outline" style="margin-top: 20px;">Reset Filters</button>
+    </div>
+    
+    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;" id="activeFilters"></div>
+</div>
+
+<!-- Results Count -->
+<div style="margin-bottom: 16px; font-size: 0.9rem; color: #666;">
+    Showing <span id="resultCount">0</span> restaurants
+</div>
+
+<!-- Restaurant Grid -->
+<div class="restaurant-grid" id="restaurantGrid">
+    {% for place in places %}
+    <div class="restaurant-card" 
+         data-cuisine="{{ place.cuisine }}" 
+         data-rating="{{ average_ratings.get(place.id, 0) }}"
+         data-name="{{ place.name }}"
+         data-id="{{ place.id }}">
+        <a href="/places/{{ place.id }}" style="display: block; color: inherit; text-decoration: none;">
+            <img
+                class="card-image"
+                src="{{ place.image_url }}"
+                alt="{{ place.name }}"
+                onerror="this.src='/static/img/placeholder.svg'"
+            />
+            <div class="card-body">
+                <h3>{{ place.name }}</h3>
+                {% set avg_rating = average_ratings.get(place.id) %}
+                <div class="card-meta">
+                    {% if avg_rating is not none %}
+                    <div class="rating">
+                        <span class="star">★</span>
+                        <span>{{ avg_rating }}</span>
+                    </div>
+                    {% else %}
+                    <span>No ratings yet</span>
+                    {% endif %}
+                    <span>•</span>
+                    <span class="cuisine-badge">{{ place.cuisine }}</span>
+                </div>
+                <div class="card-meta">
+                    <span>{{ place.location }}</span>
+                </div>
+                <p class="card-description-clamp" style="margin-top: 8px; color: #555;">{{ place.description }}</p>
+                <div class="card-meta" style="margin-top: 8px;">
+                    <span style="color: #d32f2f; font-weight: 600;">Get Directions ↗</span>
+                </div>
+            </div>
+        </a>
+    </div>
     {% else %}
     <p>No restaurants available yet.</p>
     {% endfor %}
+</div>
+
+<!-- No Results Message -->
+<div id="noResultsMessage" style="display: none; text-align: center; padding: 40px; background: white; border-radius: 12px;">
+    <p style="font-size: 1.2rem; color: #666;">😕 No restaurants match your filters</p>
+    <p style="color: #999; margin-top: 8px;">Try adjusting your filter criteria</p>
 </div>
 {% endblock %}
 
@@ -51,12 +110,120 @@
 <script>
     document.getElementById('searchInput').addEventListener('input', function() {
         const query = this.value.toLowerCase();
-        const cards = document.querySelectorAll('.restaurant-card');
-        cards.forEach(card => {
-            const name = card.querySelector('h3').textContent.toLowerCase();
-            const meta = card.querySelector('.card-meta').textContent.toLowerCase();
-            card.style.display = (name.includes(query) || meta.includes(query)) ? '' : 'none';
-        });
+        filterAndSortRestaurants();
     });
+    
+    // Filter and Sort Logic
+    const cuisineFilter = document.getElementById('cuisineFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const restaurantGrid = document.getElementById('restaurantGrid');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    const resultCount = document.getElementById('resultCount');
+    const activeFilters = document.getElementById('activeFilters');
+    
+    let allCards = Array.from(document.querySelectorAll('.restaurant-card'));
+    
+    function updateActiveFiltersDisplay() {
+        const filters = [];
+        if (cuisineFilter.value !== 'all') {
+            filters.push(`Cuisine: ${cuisineFilter.value}`);
+        }
+        if (ratingFilter.value !== 'all') {
+            filters.push(`Rating: ${ratingFilter.value}+ Stars`);
+        }
+        if (sortFilter.value !== 'name') {
+            const sortLabels = {
+                'name': 'Name (A-Z)',
+                'rating-high': 'Highest Rated',
+                'rating-low': 'Lowest Rated'
+            };
+            filters.push(`Sort: ${sortLabels[sortFilter.value] || sortFilter.value}`);
+        }
+        
+        activeFilters.innerHTML = filters.map(f => 
+            `<span style="background: #f0f0f0; padding: 4px 12px; border-radius: 16px; font-size: 0.8rem;">${f}</span>`
+        ).join('');
+    }
+    
+    function filterAndSortRestaurants() {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        const cuisine = cuisineFilter.value;
+        const minRating = ratingFilter.value === 'all' ? 0 : parseFloat(ratingFilter.value);
+        const sortBy = sortFilter.value;
+        
+        // Filter cards
+        let visibleCards = allCards.filter(card => {
+            const cardCuisine = card.dataset.cuisine || '';
+            const cardRating = parseFloat(card.dataset.rating) || 0;
+            const cardName = (card.dataset.name || '').toLowerCase();
+            const cardLocation = card.querySelector('.card-meta span')?.textContent.toLowerCase() || '';
+            
+            // Search filter
+            if (searchQuery && !cardName.includes(searchQuery) && !cardLocation.includes(searchQuery)) {
+                return false;
+            }
+            
+            // Cuisine filter
+            if (cuisine !== 'all' && cardCuisine !== cuisine) {
+                return false;
+            }
+            
+            // Rating filter
+            if (minRating > 0 && cardRating < minRating) {
+                return false;
+            }
+            
+            return true;
+        });
+        
+        // Sort cards
+        visibleCards.sort((a, b) => {
+            const ratingA = parseFloat(a.dataset.rating) || 0;
+            const ratingB = parseFloat(b.dataset.rating) || 0;
+            const nameA = a.dataset.name || '';
+            const nameB = b.dataset.name || '';
+            
+            switch(sortBy) {
+                case 'rating-high':
+                    return ratingB - ratingA;
+                case 'rating-low':
+                    return ratingA - ratingB;
+                default:
+                    return nameA.localeCompare(nameB);
+            }
+        });
+        
+        // Update DOM
+        allCards.forEach(card => card.style.display = 'none');
+        visibleCards.forEach(card => {
+            restaurantGrid.appendChild(card);
+            card.style.display = '';
+        });
+        
+        // Update UI
+        resultCount.textContent = visibleCards.length;
+        noResultsMessage.style.display = visibleCards.length === 0 ? 'block' : 'none';
+        restaurantGrid.style.display = visibleCards.length === 0 ? 'none' : 'grid';
+        
+        updateActiveFiltersDisplay();
+    }
+    
+    // Event listeners
+    cuisineFilter.addEventListener('change', filterAndSortRestaurants);
+    ratingFilter.addEventListener('change', filterAndSortRestaurants);
+    sortFilter.addEventListener('change', filterAndSortRestaurants);
+    
+    resetBtn.addEventListener('click', function() {
+        cuisineFilter.value = 'all';
+        ratingFilter.value = 'all';
+        sortFilter.value = 'name';
+        document.getElementById('searchInput').value = '';
+        filterAndSortRestaurants();
+    });
+    
+    // Initialize
+    filterAndSortRestaurants();
 </script>
 {% endblock %}
