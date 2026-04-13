@@ -53,6 +53,19 @@
     <p>No restaurants available yet.</p>
     {% endfor %}
 </div>
+
+<div id="chat-container">
+    <div class="chat-header">
+        Campus Eats AI 🍔
+    </div>
+
+    <div id="chat-box"></div>
+
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Ask about restaurants..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -66,5 +79,34 @@
             card.style.display = (name.includes(query) || meta.includes(query)) ? '' : 'none';
         });
     });
+
+    async function sendMessage() {
+        let input = document.getElementById("user-input")
+        let chatBox = document.getElementById("chat-box")
+
+        let userMessage = input.value
+
+        chatBox.innerHTML += `
+            <div class="chat-message chat-user">
+                <b>You:</b> ${userMessage}
+            </div>
+        `
+
+        let response = await fetch("/ai/chat?prompt=" + userMessage, {
+            method: "POST"
+        })
+
+        let data = await response.json()
+
+        chatBox.innerHTML += `
+            <div class="chat-message chat-ai">
+                <b>AI:</b> ${data.response}
+            </div>
+        `
+
+        chatBox.scrollTop = chatBox.scrollHeight
+
+        input.value = ""
+    }
 </script>
 {% endblock %}
