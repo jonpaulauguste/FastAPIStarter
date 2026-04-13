@@ -16,60 +16,57 @@
     <a href="/places">See all →</a>
 </div>
 
-<div class="restaurant-grid">
+<!-- Quick Filters -->
+<div class="filter-pills" style="margin-bottom: 20px;">
+    <button class="pill active home-filter-btn" data-filter="all">All</button>
+    <button class="pill home-filter-btn" data-filter="Caribbean">🇹🇹 Caribbean</button>
+    <button class="pill home-filter-btn" data-filter="American">🍔 American</button>
+    <button class="pill home-filter-btn" data-filter="Chinese">🥡 Chinese</button>
+    <button class="pill home-filter-btn" data-filter="4star">⭐ 4+ Stars</button>
+</div>
+
+<div class="restaurant-grid" id="homeRestaurantGrid">
     {% for place in places %}
-    <a href="/places/{{ place.id }}" class="restaurant-card">
-        <img
-            class="card-image"
-            src="{{ place.image_url }}"
-            alt="{{ place.name }}"
-            onerror="this.src='/static/img/placeholder.svg'"
-        />
-        <div class="card-body">
-            <h3>{{ place.name }}</h3>
-            {% set avg_rating = average_ratings.get(place.id) %}
-            <div class="card-meta">
-                {% if avg_rating is not none %}
-                <div class="rating">
-                    <span class="star">★</span>
-                    <span>{{ avg_rating }}</span>
+    <div class="restaurant-card" 
+         data-cuisine="{{ place.cuisine }}" 
+         data-rating="{{ average_ratings.get(place.id, 0) }}"
+         data-name="{{ place.name }}"
+         data-id="{{ place.id }}">
+        <a href="/places/{{ place.id }}" style="display: block; color: inherit; text-decoration: none;">
+            <img
+                class="card-image"
+                src="{{ place.image_url }}"
+                alt="{{ place.name }}"
+                onerror="this.src='/static/img/placeholder.svg'"
+            />
+            <div class="card-body">
+                <h3>{{ place.name }}</h3>
+                {% set avg_rating = average_ratings.get(place.id) %}
+                <div class="card-meta">
+                    {% if avg_rating is not none %}
+                    <div class="rating">
+                        <span class="star">★</span>
+                        <span>{{ avg_rating }}</span>
+                    </div>
+                    {% else %}
+                    <span>No ratings yet</span>
+                    {% endif %}
+                    <span>•</span>
+                    <span>{{ place.cuisine }}</span>
                 </div>
-                {% else %}
-                <span>No ratings yet</span>
-                {% endif %}
-                <span>•</span>
-                <span>{{ place.cuisine }}</span>
+                <div class="card-meta">
+                    <span>{{ place.location }}</span>
+                </div>
+                <p class="card-description-clamp" style="margin-top: 8px; color: #555;">{{ place.description }}</p>
+                <div class="card-meta" style="margin-top: 8px;">
+                    <span style="color: #d32f2f; font-weight: 600;">Get Directions ↗</span>
+                </div>
             </div>
-            <div class="card-meta">
-                <span>{{ place.location }}</span>
-            </div>
-            <p class="card-description-clamp" style="margin-top: 8px; color: #555;">{{ place.description }}</p>
-            <div class="card-meta" style="margin-top: 8px;">
-                <span style="color: #d32f2f; font-weight: 600;">Get Directions ↗</span>
-            </div>
-        </div>
-    </a>
+        </a>
+    </div>
     {% else %}
     <p>No restaurants available yet.</p>
     {% endfor %}
-</div>
-
-<div id="chat-widget">
-    <button id="chat-toggle" type="button" aria-controls="chat-container" aria-expanded="false">Ask Campus AI</button>
-
-    <div id="chat-container" class="chat-collapsed" aria-hidden="true">
-        <div class="chat-header">
-            <span>Campus Eats AI 🍔</span>
-            <button id="chat-close" class="chat-close-btn" type="button" aria-label="Close chat">x</button>
-        </div>
-
-        <div id="chat-box"></div>
-
-        <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Ask about restaurants..." />
-            <button id="chat-send" class="chat-send-btn" type="button" onclick="sendMessage()">Send</button>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
@@ -84,98 +81,37 @@
             card.style.display = (name.includes(query) || meta.includes(query)) ? '' : 'none';
         });
     });
-
-    const chatToggle = document.getElementById("chat-toggle");
-    const chatContainer = document.getElementById("chat-container");
-    const chatClose = document.getElementById("chat-close");
-    const userInput = document.getElementById("user-input");
-    const chatSend = document.getElementById("chat-send");
-    let isSending = false;
-
-    function setChatOpen(isOpen) {
-        chatContainer.classList.toggle("chat-open", isOpen);
-        chatContainer.classList.toggle("chat-collapsed", !isOpen);
-        chatContainer.setAttribute("aria-hidden", String(!isOpen));
-        chatToggle.setAttribute("aria-expanded", String(isOpen));
-
-        if (isOpen) {
-            userInput.focus();
-        }
-    }
-
-    chatToggle.addEventListener("click", function () {
-        setChatOpen(!chatContainer.classList.contains("chat-open"));
+    
+    // Quick filter buttons
+    const filterBtns = document.querySelectorAll('.home-filter-btn');
+    const cards = Array.from(document.querySelectorAll('.restaurant-card'));
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                const cuisine = card.dataset.cuisine || '';
+                const rating = parseFloat(card.dataset.rating) || 0;
+                
+                if (filter === 'all') {
+                    card.style.display = '';
+                } else if (filter === '4star') {
+                    card.style.display = rating >= 4 ? '' : 'none';
+                } else {
+                    card.style.display = cuisine === filter ? '' : 'none';
+                }
+            });
+            
+            // Update search to work with filtered results
+            const visibleCards = cards.filter(c => c.style.display !== 'none');
+            document.getElementById('searchInput').dataset.totalVisible = visibleCards.length;
+        });
     });
-
-    chatClose.addEventListener("click", function () {
-        setChatOpen(false);
-    });
-
-    userInput.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            sendMessage();
-        }
-    });
-
-    async function sendMessage() {
-        if (isSending) {
-            return
-        }
-
-        let input = document.getElementById("user-input")
-        let chatBox = document.getElementById("chat-box")
-
-        let userMessage = input.value.trim()
-
-        if (!userMessage) {
-            return
-        }
-
-        chatBox.innerHTML += `
-            <div class="chat-message chat-user">
-                <b>You:</b> ${userMessage}
-            </div>
-        `
-
-        input.value = ""
-        chatBox.scrollTop = chatBox.scrollHeight
-        isSending = true
-        chatSend.disabled = true
-
-        try {
-            let response = await fetch("/ai/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ prompt: userMessage })
-            })
-
-            if (!response.ok) {
-                throw new Error("AI request failed")
-            }
-
-            let data = await response.json()
-            let safeResponse = String(data.response || "").replace(/\n/g, "<br>")
-
-            chatBox.innerHTML += `
-                <div class="chat-message chat-ai">
-                    <b>AI:</b> ${safeResponse}
-                </div>
-            `
-        } catch (error) {
-            chatBox.innerHTML += `
-                <div class="chat-message chat-ai">
-                    <b>AI:</b> I couldn't reach the AI service, but I can still suggest restaurants based on campus data.
-                </div>
-            `
-        } finally {
-            isSending = false
-            chatSend.disabled = false
-            chatBox.scrollTop = chatBox.scrollHeight
-            input.focus()
-        }
-
-    }
 </script>
 {% endblock %}
