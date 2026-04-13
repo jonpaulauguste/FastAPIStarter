@@ -30,6 +30,19 @@
         </div>
         <p><strong>Location:</strong> {{ place.location }}</p>
         <p><strong>Description:</strong> {{ place.description }}</p>
+        
+        <!-- Map Container -->
+        <div style="margin: 16px 0;">
+            <div id="place-map" 
+                 data-place-name="{{ place.name }}" 
+                 data-place-location="{{ place.location }}"
+                 style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid #ddd;">
+            </div>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 4px;">
+                📍 {{ place.location }}
+            </p>
+        </div>
+        
         <a
             id="directionsBtn"
             class="btn btn-outline"
@@ -44,18 +57,27 @@
     </div>
 </div>
 
+<!-- Filter Bar for Menu Items -->
 <div class="section-header">
     <h2>Menu Items</h2>
+    <div class="filter-pills" style="margin-bottom: 0;">
+        <button class="pill active menu-filter-btn" data-filter="all">All</button>
+        <button class="pill menu-filter-btn" data-filter="under-20">Under $20</button>
+        <button class="pill menu-filter-btn" data-filter="20-40">$20 - $40</button>
+        <button class="pill menu-filter-btn" data-filter="over-40">Over $40</button>
+    </div>
 </div>
 <div class="restaurant-card" style="padding: 14px; margin-bottom: 24px;">
-    {% for item in menu_items %}
-    <div class="card-meta" style="justify-content: space-between; margin-bottom: 10px;">
-        <span>{{ item.name }}</span>
-        <strong>${{ "%.2f"|format(item.price) }}</strong>
+    <div id="menu-items-container">
+        {% for item in menu_items %}
+        <div class="menu-item-row" data-price="{{ item.price }}" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #f0f0f0;">
+            <span>{{ item.name }}</span>
+            <strong>${{ "%.2f"|format(item.price) }}</strong>
+        </div>
+        {% else %}
+        <p>No menu items available yet.</p>
+        {% endfor %}
     </div>
-    {% else %}
-    <p>No menu items available yet.</p>
-    {% endfor %}
 </div>
 
 <div class="section-header">
@@ -99,6 +121,9 @@
     <p>No reviews yet.</p>
     {% endfor %}
 </div>
+
+<!-- Map Initialization Script -->
+<script src="/static/js/place-map.js"></script>
 {% endblock %}
 
 {% block scripts %}
@@ -164,5 +189,54 @@
             );
         });
     })();
+
+    // Menu Filter Functionality
+    (function() {
+        const filterBtns = document.querySelectorAll('.menu-filter-btn');
+        const menuItems = document.querySelectorAll('.menu-item-row');
+        
+        if (!filterBtns.length || !menuItems.length) return;
+        
+        function filterMenu(filter) {
+            menuItems.forEach(item => {
+                const price = parseFloat(item.dataset.price);
+                
+                if (filter === 'all') {
+                    item.style.display = 'flex';
+                } else if (filter === 'under-20') {
+                    item.style.display = price < 20 ? 'flex' : 'none';
+                } else if (filter === '20-40') {
+                    item.style.display = (price >= 20 && price <= 40) ? 'flex' : 'none';
+                } else if (filter === 'over-40') {
+                    item.style.display = price > 40 ? 'flex' : 'none';
+                }
+            });
+            
+            filterBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filterMenu(this.dataset.filter);
+            });
+        });
+    })();
+</script>
+
+<script>
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.restaurant-card');
+        cards.forEach(card => {
+            const name = card.querySelector('h3')?.textContent.toLowerCase() || '';
+            const meta = card.querySelector('.card-meta')?.textContent.toLowerCase() || '';
+            card.style.display = (name.includes(query) || meta.includes(query)) ? '' : 'none';
+        });
+    });
 </script>
 {% endblock %}
