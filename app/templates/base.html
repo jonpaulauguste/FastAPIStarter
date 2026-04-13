@@ -52,8 +52,40 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- AI Chat Widget -->
+    <div id="chat-widget">
+        <button id="chat-toggle" class="chat-toggle-btn">💬 Ask AI Assistant</button>
+        
+        <div id="chat-container" class="chat-collapsed">
+            <div class="chat-header">
+                <span>🤖 Campus Eats AI</span>
+                <button id="chat-close" class="chat-close-btn">✕</button>
+            </div>
+            
+            <div id="chat-box" class="chat-box">
+                <!-- Messages will appear here -->
+            </div>
+            
+            <div class="chat-suggestions">
+                <button class="suggestion-chip">What's good for lunch?</button>
+                <button class="suggestion-chip">Show me cheap eats</button>
+                <button class="suggestion-chip">Where can I get coffee?</button>
+                <button class="suggestion-chip">Spicy food recommendations</button>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Ask me anything..." />
+                <button id="send-btn" class="chat-send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Leaflet Map JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chat Widget JS -->
+    <script src="/static/js/chat.js"></script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>
