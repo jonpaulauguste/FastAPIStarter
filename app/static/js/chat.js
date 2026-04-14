@@ -28,16 +28,17 @@
         let isLoading = false;
 
         // Toggle chat open/closed
-        function toggleChat() {
-            isOpen = !isOpen;
-            chatContainer.classList.toggle('chat-open', isOpen);
-            chatContainer.classList.toggle('chat-collapsed', !isOpen);
-            chatToggle.style.display = isOpen ? 'none' : 'block';
-            
-            if (isOpen && chatBox.children.length === 0) {
-                addWelcomeMessage();
+        function openChat() {
+            isOpen-true;
+            chatContainer.classList.add('chat-open');
+            chatContainer.classList.remove('chat-collapsed');
+            chatToggle.style.display='none';
+
+            if (chatBox.children.length==0){
+                addMessages('ai',"👋 Hi! I'm the Campus Eats assistant. Ask me about restaurants, cuisines, or what to eat!");
                 loadSuggestions();
             }
+            userInput.focus();
         }
 
         // Close chat
@@ -45,7 +46,7 @@
             isOpen = false;
             chatContainer.classList.remove('chat-open');
             chatContainer.classList.add('chat-collapsed');
-            chatToggle.style.display = 'block';
+            chatToggle.style.display = '';
         }
 
         // Add welcome message
