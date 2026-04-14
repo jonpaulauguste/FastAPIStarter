@@ -53,6 +53,11 @@ a {
     transition: border-color 0.2s, background 0.2s;
 }
 
+.search-bar:focus-within{
+    background:#fff;
+    border-color: #ddd;
+}
+
 .search-bar .search-icon {
     margin-right: 8px;
     font-size: 1rem;
