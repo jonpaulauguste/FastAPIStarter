@@ -21,7 +21,8 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 24px;
+    padding: 0 28px;
+    height: 60px;
     background-color: #fff;
     border-bottom: 1px solid #e0e0e0;
     position: sticky;
@@ -41,12 +42,15 @@ a {
     margin: 0 24px;
 }
 
+/* ===== SEARCHBAR ===== */
 .search-bar {
     display: flex;
     align-items: center;
-    background-color: #f0f0f0;
-    border-radius: 24px;
-    padding: 8px 16px;
+    background-color: #f3f3f0;
+    border-radius: 12px;
+    padding: 9px 14px;
+    boarder: 1px solid transparent
+    transition: border-color 0.2s, background 0.2s;
 }
 
 .search-bar .search-icon {
