@@ -155,11 +155,12 @@
         }
 
         // Event listeners
-        chatToggle.addEventListener('click', toggleChat);
+        chatToggle.addEventListener('click', openChat);
         
-        if (chatClose) {
-            chatClose.addEventListener('click', closeChat);
-        }
+        chatContainer.addEventListener('click', function(e) {
+            const closeBtn= e.target.closest('#chat-close');
+            if (closeBtn) closeChat();
+        });
 
         sendBtn.addEventListener('click', sendMessage);
 
