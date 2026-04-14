@@ -198,10 +198,11 @@ a.btn-outline:visited {
 .filter-pills {
     display: flex;
     gap: 10px;
+    border-radius:20px;
+    font-size: 0.85rem;
     margin-bottom: 28px;
     flex-wrap: wrap;
 }
-
 .pill {
     padding: 8px 16px;
     border-radius: 20px;
@@ -213,11 +214,15 @@ a.btn-outline:visited {
     transition: all 0.2s;
 }
 
-.pill:hover,
+.pill:hover {
+    border-color: #aaa;
+    color: #1a1a1a;
+}
+
 .pill.active {
-    background-color: #333;
-    color: #fff;
-    border-color: #333;
+    background-color: #1a1a1a;
+    color:#fff
+    border-color: #1a1a1a;
 }
 
 /* ===== SECTION HEADINGS ===== */
@@ -343,30 +348,57 @@ a.btn-outline:visited {
 
 /* ===== PROMO BANNER ===== */
 .promo-banner {
-    background: linear-gradient(135deg, #d32f2f, #ff6659);
+    background: linear-gradient(135deg, #c62828 0%, #e53935 60%, #ff7043 100%);
     color: #fff;
-    padding: 24px 32px;
-    border-radius: 16px;
+    padding: 24px 36px;
+    border-radius: 20px;
     margin-bottom: 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    overflow:hidden;
+    position:reflective;
+}
+promo-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: 120px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
 }
 
-.promo-banner h2 {
-    font-size: 1.5rem;
+.promo-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: 40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+}
+
+promo-banner h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
     margin-bottom: 6px;
+    letter-spacing: -0.5px;
 }
 
-.promo-banner p {
+promo-banner p {
     font-size: 0.95rem;
-    opacity: 0.9;
+    opacity: 0.85;
 }
+
 
 .promo-banner .promo-emoji {
-    font-size: 3rem;
+    font-size: 3.5rem;
+    position: relative;
+    z-index: 1;
 }
-
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .navbar {
@@ -463,15 +495,21 @@ a.btn-outline:visited {
 
 .chat-close-btn {
     border: none;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255,255,255,0.2);
     color: white;
-    width: 24px;
-    height: 24px;
-    border-radius: 999px;
-    line-height: 1;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 28px;
+    text-align: center;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
 }
-
 .chat-close-btn:hover {
     background: rgba(255, 255, 255, 0.28);
 }
@@ -656,4 +694,13 @@ a.btn-outline:visited {
 
 #chat-container.chat-open {
     display: block;
+}
+
+css.cuisine-badge {
+    background: #fce4e4;
+    color: #c62828;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
