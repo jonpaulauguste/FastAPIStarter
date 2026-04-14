@@ -88,8 +88,9 @@ a {
     align-items: center;
     justify-content: center;
     padding: 8px 18px;
-    border-radius: 20px;
+    border-radius: 10px;
     font-size: 0.9rem;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     font-weight: 600;
     cursor: pointer;
     border: none;
