@@ -97,6 +97,10 @@ a {
     transition: background 0.2s;
 }
 
+.bin:active{
+    transform: scale(0.97);
+}
+
 .btn-primary {
     background-color: #d32f2f;
     color: #fff;
@@ -245,7 +249,8 @@ a.btn-outline:visited {
 
 .restaurant-card {
     background: #fff;
-    border-radius: 12px;
+    border-radius: 16px;
+    boarder: 1px solid #ebebeb 
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: transform 0.2s, box-shadow 0.2s;
@@ -253,14 +258,15 @@ a.btn-outline:visited {
 }
 
 .restaurant-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
 }
 
 .card-image {
     width: 100%;
-    height: 160px;
+    height: 170px;
     object-fit: cover;
+    background: linear-gradient(135deg, #fce4e4 0%, #ffe0b2 50%, #e8f5e9 100%);
     background-color: #e0e0e0;
 }
 
